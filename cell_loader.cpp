@@ -232,7 +232,7 @@ void cell_loader::applySegment(uint32 sel,
   seg.end_ea = addr + size;
   seg.color = DEFCOLOR;
   seg.sel = sel;
-  seg.bitness = 1;
+  seg.bitness = 2;
   seg.orgbase = sel;
   seg.comb = scPub;
   seg.perm = perm;

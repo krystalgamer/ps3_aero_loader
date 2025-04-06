@@ -3,6 +3,7 @@
 #include "sce.h"
 
 #include <idaldr.h>
+#include <typeinf.hpp>
 
 #include <memory>
 
@@ -44,6 +45,11 @@ static void idaapi
  load_file(linput_t *li, ushort neflags, const char *fileformatname)
 {
     set_processor_type("ppc", SETPROC_LOADER_NON_FATAL);
+
+    compiler_info_t c;
+    set_compiler(c, 4, "celloslv2");
+   
+
   elf_reader<elf64> elf(li); elf.read();
     
   ea_t relocAddr = 0;
