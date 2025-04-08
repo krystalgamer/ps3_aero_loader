@@ -2,7 +2,7 @@
 #include "cell_loader.hpp"
 #include "sce.h"
 
-#include <idaldr.h>
+#include <loader.hpp>
 #include <typeinf.hpp>
 
 #include <memory>

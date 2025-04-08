@@ -116,6 +116,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>..\..\lib\x64_win_vc_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);ida.lib;idalib.lib</AdditionalDependencies>
+      <AdditionalOptions>/EXPORT:LDSC %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -140,6 +141,7 @@
       <AdditionalLibraryDirectories>..\..\lib\x64_win_vc_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
+      <AdditionalOptions>/EXPORT:LDSC %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
