@@ -7,7 +7,6 @@
 #include <kernwin.hpp>
 #include <idaldr.h>
 #include <typeinf.hpp>
-#include <entry.hpp>
 
 #include <memory>
 #include <vector>
