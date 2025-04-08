@@ -488,6 +488,16 @@ void cell_loader::loadExports(uint32 entTop, uint32 entEnd) {
                 qsnprintf(symName, MAXNAMELEN, ".%s", resolvedNid);
                 force_name(addToc, symName);
               }
+            } else {
+                qsnprintf(symName, MAXNAMELEN, "%s_%08X",contents.c_str(), nid);
+                set_cmt(nidOffset, symName, false);
+                force_name(add, symName);
+
+                // only label functions this way
+                if (i < nfunc) {
+                    qsnprintf(symName, MAXNAMELEN, ".%s_%08X", contents.c_str(), nid);
+                    force_name(addToc, symName);
+                }
             }
       
             if ( i < nfunc )
@@ -575,6 +585,13 @@ void cell_loader::loadImports(uint32 stubTop, uint32 stubEnd) {
             force_name(funcOffset, symName);
             qsnprintf(symName, MAXNAMELEN, ".%s", resolvedNid);
             force_name(func, symName);
+          } else {
+              qsnprintf(symName, MAXNAMELEN, "%s_%08X", contents.c_str(), nid);
+              set_cmt(nidOffset, symName, false);
+              qsnprintf(symName, MAXNAMELEN, "%s_%08X.stub_entry", contents.c_str(), nid);
+              force_name(funcOffset, symName);
+              qsnprintf(symName, MAXNAMELEN, ".%s_%08X", contents.c_str(), nid);
+              force_name(func, symName);
           }
       
           msg("doDwrd: %08x\n", nidOffset);
