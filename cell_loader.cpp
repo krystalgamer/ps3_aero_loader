@@ -7,6 +7,7 @@
 #include <kernwin.hpp>
 #include <idaldr.h>
 #include <typeinf.hpp>
+#include <entry.hpp>
 
 #include <memory>
 #include <vector>
@@ -209,7 +210,9 @@ void cell_loader::applyProgramHeaders() {
                     NULL, 
                     sclass, 
                     perm, 
-                    m_elf->getAlignment(segment.p_align) );
+                    m_elf->getAlignment(segment.p_align),
+                    true,
+                    segment.p_filesz);
 
       ++index;
     }
@@ -224,7 +227,8 @@ void cell_loader::applySegment(uint32 sel,
                                const char *sclass, 
                                uchar perm, 
                                uchar align, 
-                               bool load) {
+                               bool load,
+                               uint64 filesize) {
   addr += m_relocAddr;
 
   segment_t seg;
@@ -247,7 +251,7 @@ void cell_loader::applySegment(uint32 sel,
   add_segm_ex(&seg, name, sclass, NULL);
 
   if ( load == true )
-    file2base(m_elf->getReader(), offset, addr, addr + size, true);
+    file2base(m_elf->getReader(), offset, addr, addr + filesize, true);
 }
 
 void cell_loader::applyRelocations() {
