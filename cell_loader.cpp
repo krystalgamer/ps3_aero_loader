@@ -250,7 +250,7 @@ void cell_loader::applySegment(uint32 sel,
   add_segm_ex(&seg, name, sclass, NULL);
 
   if ( load == true )
-    file2base(m_elf->getReader(), offset, addr, addr + filesize, true);
+    file2base(m_elf->getReader(), offset, addr, ((filesize)? addr + filesize: addr + size), true);
 }
 
 void cell_loader::applyRelocations() {
