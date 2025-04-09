@@ -1,7 +1,5 @@
 #include "cell_loader.hpp"
 
-
-
 #include <ida.hpp>
 #include <idp.hpp>
 #include <kernwin.hpp>
@@ -390,6 +388,10 @@ void cell_loader::applyRelocation(uint32 type, uint32 addr, uint32 saddr) {
       break;
     case R_PPC64_ADDR16_LO:
       value = saddr & 0xFFFF;
+      patch_word(addr, value);
+      break;
+    case R_PPC64_ADDR16_HI:
+      value = (((saddr) >> 16) & 0xFFFF);
       patch_word(addr, value);
       break;
     case R_PPC64_ADDR16_HA:
