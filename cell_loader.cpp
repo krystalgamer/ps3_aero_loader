@@ -1,7 +1,5 @@
 #include "cell_loader.hpp"
 
-
-
 #include <ida.hpp>
 #include <idp.hpp>
 #include <kernwin.hpp>
@@ -209,7 +207,9 @@ void cell_loader::applyProgramHeaders() {
                     NULL, 
                     sclass, 
                     perm, 
-                    m_elf->getAlignment(segment.p_align) );
+                    m_elf->getAlignment(segment.p_align),
+                    true,
+                    segment.p_filesz);
 
       ++index;
     }
@@ -224,7 +224,8 @@ void cell_loader::applySegment(uint32 sel,
                                const char *sclass, 
                                uchar perm, 
                                uchar align, 
-                               bool load) {
+                               bool load,
+                               uint64 filesize) {
   addr += m_relocAddr;
 
   segment_t seg;
@@ -247,7 +248,7 @@ void cell_loader::applySegment(uint32 sel,
   add_segm_ex(&seg, name, sclass, NULL);
 
   if ( load == true )
-    file2base(m_elf->getReader(), offset, addr, addr + size, true);
+    file2base(m_elf->getReader(), offset, addr, ((filesize)? addr + filesize: addr + size), true);
 }
 
 void cell_loader::applyRelocations() {
@@ -387,6 +388,10 @@ void cell_loader::applyRelocation(uint32 type, uint32 addr, uint32 saddr) {
       break;
     case R_PPC64_ADDR16_LO:
       value = saddr & 0xFFFF;
+      patch_word(addr, value);
+      break;
+    case R_PPC64_ADDR16_HI:
+      value = (((saddr) >> 16) & 0xFFFF);
       patch_word(addr, value);
       break;
     case R_PPC64_ADDR16_HA:

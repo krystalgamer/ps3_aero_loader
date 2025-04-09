@@ -27,15 +27,16 @@ public:
   
 private:
   void applySegments();
-  void applySegment(uint32 sel, 
-                    uint64 offset, 
-                    uint64 addr, 
-                    uint64 size, 
-                    const char *name, 
-                    const char *sclass, 
-                    uchar perm, 
-                    uchar align, 
-                    bool load = true);
+  void applySegment(uint32 sel,
+      uint64 offset,
+      uint64 addr,
+      uint64 size,
+      const char* name,
+      const char* sclass,
+      uchar perm,
+      uchar align,
+      bool load = true,
+      uint64 filesize = 0);
 
   void applySectionHeaders();
   void applyProgramHeaders();
