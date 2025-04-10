@@ -45,6 +45,7 @@ private:
   void applySectionRelocations();
   void applySegmentRelocations();
   void applyRelocation(uint32 type, uint32 addr, uint32 saddr);
+  void applyOpdEntries();
   
   void declareStructures();
 
