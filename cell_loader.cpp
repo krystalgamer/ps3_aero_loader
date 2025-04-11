@@ -107,6 +107,9 @@ void cell_loader::apply() {
       event,
       m_gpValue);
 
+  // we want to apply opd entries automatically to save our time
+  applyOpdEntries();
+
   // we want to apply the symbols last so that symbols
   // always override our own custom symbols.
   applySymbols();
@@ -679,7 +682,7 @@ void cell_loader::loadImports(uint32 stubTop, uint32 stubEnd) {
     }
   }
 
-  msg("DONE");
+  msg("DONE\n");
 }
 
 const char *cell_loader::getNameFromDatabase(
@@ -797,6 +800,35 @@ void cell_loader::swapSymbols() {
   }
 }
 
+void cell_loader::applyOpdEntries() {
+  msg("Applying OPD entries\n");
+  auto ea = m_gpValue;
+
+  // Find end of opd
+  while (((get_dword(ea - sizeof(uint32))) != m_gpValue) || ((get_dword(ea - sizeof(uint32)*3)) != m_gpValue)) {
+    if (ea < 0) {
+        msg("OPD Not found\n");
+        return;
+    }
+    ea = ea - sizeof(uint32);
+  }
+
+  // Apply opd entries
+  while (true) {
+    ea = ea - 0x08;
+    if ((get_dword(ea) != BADADDR) && ((get_dword(ea + sizeof(uint32))) == m_gpValue)) {
+      tid_t tid = get_named_type_tid("opd32_t");
+      create_struct(ea, 0x08, tid);
+      add_func(get_dword(ea));
+      continue;
+    }
+
+    if ((get_dword(ea + sizeof(uint32)) != 0) && ((get_dword(ea + sizeof(uint32))) != m_gpValue)) {
+      break;
+    }
+  }
+}
+
 void cell_loader::applySymbols() {
   auto section = m_elf->getSymbolsSection();
   
@@ -848,14 +880,12 @@ void cell_loader::applySymbols() {
   }
 }
 
-static void add_param_to_struct(tinfo_t& t, const char* name, const char* type)
-{
+static void add_param_to_struct(tinfo_t& t, const char* name, const char* type) {
     //msg("Adding %s to %s with offset %02X\n", name, type, t.get_unpadded_size() * 8);
     t.add_udm(name, type, t.get_unpadded_size() * 8);
 }
 
-void cell_loader::declareStructures()
-{
+void cell_loader::declareStructures() {
 
     /*
   tid_t modInfoCommon = add_struc(BADADDR, "_scemoduleinfo_common");
@@ -868,44 +898,35 @@ void cell_loader::declareStructures()
   moduleInfoCommonMembers.add_member("terminal", BADADDR, byteflag(), NULL, 1);
   */
 
-    tinfo_t moduleInfoCommon;
+  tinfo_t moduleInfoCommon;
 
-    if (moduleInfoCommon.create_udt(false))
-    {
-        moduleInfoCommon.set_named_type(nullptr, "_scemoduleinfo_common");
+  if (moduleInfoCommon.create_udt(false)) {
+    moduleInfoCommon.set_named_type(nullptr, "_scemoduleinfo_common");
 
-        add_param_to_struct(moduleInfoCommon, "modattribute", "short");
-        add_param_to_struct(moduleInfoCommon, "modversion", "unsigned char[2]");
-        add_param_to_struct(moduleInfoCommon, "modname", "char[27]");
-        add_param_to_struct(moduleInfoCommon, "terminal", "char");
+    add_param_to_struct(moduleInfoCommon, "modattribute", "short");
+    add_param_to_struct(moduleInfoCommon, "modversion", "unsigned char[2]");
+    add_param_to_struct(moduleInfoCommon, "modname", "char[27]");
+    add_param_to_struct(moduleInfoCommon, "terminal", "char");
 
-        tinfo_t moduleInfo;
+    tinfo_t moduleInfo;
 
-        if (moduleInfo.create_udt(false))
-        {
-            moduleInfo.set_named_type(nullptr, "_scemoduleinfo");
+    if (moduleInfo.create_udt(false)) {
+      moduleInfo.set_named_type(nullptr, "_scemoduleinfo");
 
-            add_param_to_struct(moduleInfo, "c", "_scemoduleinfo_common");
+      add_param_to_struct(moduleInfo, "c", "_scemoduleinfo_common");
 
-            add_param_to_struct(moduleInfo, "gp_value", "int");
-            add_param_to_struct(moduleInfo, "ent_top", "int");
-            add_param_to_struct(moduleInfo, "ent_end", "int");
-            add_param_to_struct(moduleInfo, "stub_top","int");
-            add_param_to_struct(moduleInfo, "stub_end","int");
-        }
-        else
-        {
-            warning("Failed to create _scemoduleinfo");
-        }
-
-    }
-    else
-    {
-        warning("Failed to create _scemoduleinfo_common");
+      add_param_to_struct(moduleInfo, "gp_value", "int");
+      add_param_to_struct(moduleInfo, "ent_top", "int");
+      add_param_to_struct(moduleInfo, "ent_end", "int");
+      add_param_to_struct(moduleInfo, "stub_top","int");
+      add_param_to_struct(moduleInfo, "stub_end","int");
+    } else {
+      warning("Failed to create _scemoduleinfo");
     }
 
-
-
+  } else {
+    warning("Failed to create _scemoduleinfo_common");
+  }
 
   /*
   if ( sptr != NULL ) {
@@ -929,47 +950,41 @@ void cell_loader::declareStructures()
   }
   */
 
-    tinfo_t libStubCommon;
+  tinfo_t libStubCommon;
 
-    if (libStubCommon.create_udt(false))
-    {
-        libStubCommon.set_named_type(nullptr, "_scelibstub_ppu_common");
+  if (libStubCommon.create_udt(false)) {
+    libStubCommon.set_named_type(nullptr, "_scelibstub_ppu_common");
 
-        add_param_to_struct(libStubCommon, "structsize", "unsigned char");
-        add_param_to_struct(libStubCommon, "reserved1", "unsigned char");
-        add_param_to_struct(libStubCommon, "version", "short");
-        add_param_to_struct(libStubCommon, "attribute", "short");
-        add_param_to_struct(libStubCommon, "nfunc", "short");
-        add_param_to_struct(libStubCommon, "nvar", "short");
-        add_param_to_struct(libStubCommon, "ntlsvar", "short");
-        add_param_to_struct(libStubCommon, "reserved2", "unsigned char[4]");
+    add_param_to_struct(libStubCommon, "structsize", "unsigned char");
+    add_param_to_struct(libStubCommon, "reserved1", "unsigned char");
+    add_param_to_struct(libStubCommon, "version", "short");
+    add_param_to_struct(libStubCommon, "attribute", "short");
+    add_param_to_struct(libStubCommon, "nfunc", "short");
+    add_param_to_struct(libStubCommon, "nvar", "short");
+    add_param_to_struct(libStubCommon, "ntlsvar", "short");
+    add_param_to_struct(libStubCommon, "reserved2", "unsigned char[4]");
 
-        tinfo_t libStubPpu32;
-        if (libStubPpu32.create_udt(false))
-        {
-            libStubPpu32.set_named_type(nullptr, "_scelibstub_ppu32");
+    tinfo_t libStubPpu32;
+    if (libStubPpu32.create_udt(false)) {
+      libStubPpu32.set_named_type(nullptr, "_scelibstub_ppu32");
 
-            add_param_to_struct(libStubPpu32, "c", "_scelibstub_ppu_common");
+      add_param_to_struct(libStubPpu32, "c", "_scelibstub_ppu_common");
 
-            add_param_to_struct(libStubPpu32, "libname", "int");
-            add_param_to_struct(libStubPpu32, "func_nidtable", "int");
-            add_param_to_struct(libStubPpu32, "func_table", "int");
-            add_param_to_struct(libStubPpu32, "var_nidtable", "int");
-            add_param_to_struct(libStubPpu32, "var_table", "int");
-            add_param_to_struct(libStubPpu32, "tls_nidtable", "int");
-            add_param_to_struct(libStubPpu32, "tls_table", "int");
+      add_param_to_struct(libStubPpu32, "libname", "int");
+      add_param_to_struct(libStubPpu32, "func_nidtable", "int");
+      add_param_to_struct(libStubPpu32, "func_table", "int");
+      add_param_to_struct(libStubPpu32, "var_nidtable", "int");
+      add_param_to_struct(libStubPpu32, "var_table", "int");
+      add_param_to_struct(libStubPpu32, "tls_nidtable", "int");
+      add_param_to_struct(libStubPpu32, "tls_table", "int");
 
-        }
-        else
-        {
-            warning("Failed to create _scelibstub_ppu32");
-        }
-
+    } else {
+      warning("Failed to create _scelibstub_ppu32");
     }
-    else
-    {
-        warning("Failed to create _scelibstub_ppu_common");
-    }
+
+  } else {
+    warning("Failed to create _scelibstub_ppu_common");
+  }
 
     /*
   tid_t libStubCommon = add_struc(BADADDR, "_scelibstub_ppu_common");
@@ -1001,44 +1016,38 @@ void cell_loader::declareStructures()
   }
   */
 
-    tinfo_t libEntCommon;
+  tinfo_t libEntCommon;
 
-    if (libEntCommon.create_udt(false))
-    {
-        libEntCommon.set_named_type(nullptr, "_scelibent_ppu_common");
+  if (libEntCommon.create_udt(false)) {
+    libEntCommon.set_named_type(nullptr, "_scelibent_ppu_common");
 
-        add_param_to_struct(libEntCommon, "structsize", "unsigned char");
-        add_param_to_struct(libEntCommon, "reserved1", "unsigned char");
-        add_param_to_struct(libEntCommon, "version", "short");
-        add_param_to_struct(libEntCommon, "attribute", "short");
-        add_param_to_struct(libEntCommon, "nfunc", "short");
-        add_param_to_struct(libEntCommon, "nvar", "short");
-        add_param_to_struct(libEntCommon, "ntlsvar", "short");
-        add_param_to_struct(libEntCommon, "hashinfo", "unsigned char");
-        add_param_to_struct(libEntCommon, "hashinfotls", "unsigned char");
-        add_param_to_struct(libEntCommon, "reserved2", "unsigned char");
-        add_param_to_struct(libEntCommon, "nidaltsets", "unsigned char");
+    add_param_to_struct(libEntCommon, "structsize", "unsigned char");
+    add_param_to_struct(libEntCommon, "reserved1", "unsigned char");
+    add_param_to_struct(libEntCommon, "version", "short");
+    add_param_to_struct(libEntCommon, "attribute", "short");
+    add_param_to_struct(libEntCommon, "nfunc", "short");
+    add_param_to_struct(libEntCommon, "nvar", "short");
+    add_param_to_struct(libEntCommon, "ntlsvar", "short");
+    add_param_to_struct(libEntCommon, "hashinfo", "unsigned char");
+    add_param_to_struct(libEntCommon, "hashinfotls", "unsigned char");
+    add_param_to_struct(libEntCommon, "reserved2", "unsigned char");
+    add_param_to_struct(libEntCommon, "nidaltsets", "unsigned char");
 
-        tinfo_t libEntPpu32;
+    tinfo_t libEntPpu32;
 
-        if (libEntPpu32.create_udt(false))
-        {
-            libEntPpu32.set_named_type(nullptr, "_scelibent_ppu32");
+    if (libEntPpu32.create_udt(false)) {
+      libEntPpu32.set_named_type(nullptr, "_scelibent_ppu32");
 
-            add_param_to_struct(libEntPpu32, "c", "_scelibent_ppu_common");
-            add_param_to_struct(libEntPpu32, "libname", "int");
-            add_param_to_struct(libEntPpu32, "nidtable", "int");
-            add_param_to_struct(libEntPpu32, "addtable", "int");
-        }
-        else
-        {
-            warning("Failed to create _scelibent_ppu32");
-        }
+      add_param_to_struct(libEntPpu32, "c", "_scelibent_ppu_common");
+      add_param_to_struct(libEntPpu32, "libname", "int");
+      add_param_to_struct(libEntPpu32, "nidtable", "int");
+      add_param_to_struct(libEntPpu32, "addtable", "int");
+    } else {
+      warning("Failed to create _scelibent_ppu32");
     }
-    else
-    {
-        warning("Failed to create _scelibent_ppu_common");
-    }
+  } else {
+    warning("Failed to create _scelibent_ppu_common");
+  }
 
   /*
   tid_t libEntCommon = add_struc(BADADDR, "_scelibent_ppu_common");
@@ -1069,26 +1078,21 @@ void cell_loader::declareStructures()
   }
   */
 
-
-
   tinfo_t processParam;
-  if (processParam.create_udt(false))
-  {
-      processParam.set_named_type(nullptr, "sys_process_param_t");
+  if (processParam.create_udt(false)) {
+    processParam.set_named_type(nullptr, "sys_process_param_t");
 
-      add_param_to_struct(processParam, "size", "int");
-      add_param_to_struct(processParam, "magic", "int");
-      add_param_to_struct(processParam, "version", "int");
-      add_param_to_struct(processParam, "sdk_version", "int");
-      add_param_to_struct(processParam, "primary_prio", "int");
-      add_param_to_struct(processParam, "primary_stacksize", "int");
-      add_param_to_struct(processParam, "malloc_pagesize", "int");
-      add_param_to_struct(processParam, "ppc_seg", "int");
-      add_param_to_struct(processParam, "crash_dump_param_addr", "int");
-  }
-  else
-  {
-      warning("Faield to create sys_process_param_t");
+    add_param_to_struct(processParam, "size", "int");
+    add_param_to_struct(processParam, "magic", "int");
+    add_param_to_struct(processParam, "version", "int");
+    add_param_to_struct(processParam, "sdk_version", "int");
+    add_param_to_struct(processParam, "primary_prio", "int");
+    add_param_to_struct(processParam, "primary_stacksize", "int");
+    add_param_to_struct(processParam, "malloc_pagesize", "int");
+    add_param_to_struct(processParam, "ppc_seg", "int");
+    add_param_to_struct(processParam, "crash_dump_param_addr", "int");
+  } else {
+    warning("Faield to create sys_process_param_t");
   }
 
   /*
@@ -1106,30 +1110,25 @@ void cell_loader::declareStructures()
     add_struc_member(sptr, "crash_dump_param_addr", BADADDR, dwrdflag(), NULL, 4);
   }
   */
-   
-
+  
   tinfo_t procPrxInfoT;
-  if (procPrxInfoT.create_udt(false))
-  {
-      procPrxInfoT.set_named_type(nullptr, "sys_process_prx_info_t");
+  if (procPrxInfoT.create_udt(false)) {
+    procPrxInfoT.set_named_type(nullptr, "sys_process_prx_info_t");
 
-      add_param_to_struct(procPrxInfoT, "size", "int");
-      add_param_to_struct(procPrxInfoT, "magic", "int");
-      add_param_to_struct(procPrxInfoT, "version", "int");
-      add_param_to_struct(procPrxInfoT, "sdk_version", "int");
-      add_param_to_struct(procPrxInfoT, "libent_start", "int");
-      add_param_to_struct(procPrxInfoT, "libent_end", "int");
-      add_param_to_struct(procPrxInfoT, "libstub_start", "int");
-      add_param_to_struct(procPrxInfoT, "libstub_end", "int");
-      add_param_to_struct(procPrxInfoT, "major_version", "unsigned char");
-      add_param_to_struct(procPrxInfoT, "minor_version", "unsigned char");
-      add_param_to_struct(procPrxInfoT, "reserved", "unsigned char[6]");
+    add_param_to_struct(procPrxInfoT, "size", "int");
+    add_param_to_struct(procPrxInfoT, "magic", "int");
+    add_param_to_struct(procPrxInfoT, "version", "int");
+    add_param_to_struct(procPrxInfoT, "sdk_version", "int");
+    add_param_to_struct(procPrxInfoT, "libent_start", "int");
+    add_param_to_struct(procPrxInfoT, "libent_end", "int");
+    add_param_to_struct(procPrxInfoT, "libstub_start", "int");
+    add_param_to_struct(procPrxInfoT, "libstub_end", "int");
+    add_param_to_struct(procPrxInfoT, "major_version", "unsigned char");
+    add_param_to_struct(procPrxInfoT, "minor_version", "unsigned char");
+    add_param_to_struct(procPrxInfoT, "reserved", "unsigned char[6]");
+  } else {
+    warning("Failed to create sys_process_prx_info_t");
   }
-  else
-  {
-      warning("Failed to create sys_process_prx_info_t");
-  }
-
 
   /*
   tid_t procPrxInfo = add_struc(BADADDR, "sys_process_prx_info_t");
@@ -1148,5 +1147,13 @@ void cell_loader::declareStructures()
     add_struc_member(sptr, "reserved", BADADDR, byteflag(), NULL, 6);
   }
   */
-
+ 
+  tinfo_t ppu32_opd_entry;
+  if (ppu32_opd_entry.create_udt(false)) {
+    ppu32_opd_entry.set_named_type(nullptr, "opd32_t");
+    add_param_to_struct(ppu32_opd_entry, "funcaddr", "unsigned int *__ptr32");
+    add_param_to_struct(ppu32_opd_entry, "r2", "unsigned int");
+  } else {
+    warning("Failed to create opd32_t");
+  }
 }
