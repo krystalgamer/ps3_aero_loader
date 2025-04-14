@@ -5,60 +5,65 @@
 #include "sce.h"
 #include <string>
 
-class cell_loader {
-  elf_reader<elf64> *m_elf;   ///< Handle for this loader's ELF reader.
-  tinyxml2::XMLDocument m_database;   ///< Handle for this loader's NID xml database.
-  uint64 m_relocAddr; // Base relocaton address for PRX's.
-  uint64 m_gpValue;   // TOC value
-  bool m_hasSegSym;   // has seg sym, but the real meaning
-                      // is if its a 0.85 PRX since its the only
-                      // way I know how to check
+class cell_loader
+{
+    elf_reader<elf64> *m_elf;   ///< Handle for this loader's ELF reader.
+    tinyxml2::XMLDocument m_database;   ///< Handle for this loader's NID xml database.
+    uint64 m_relocAddr; // Base relocaton address for PRX's.
+    uint64 m_gpValue;   // TOC value
+    bool m_hasSegSym;   // has seg sym, but the real meaning
+                        // is if its a 0.85 PRX since its the only
+                        // way I know how to check
   
 public:
-  cell_loader(elf_reader<elf64> *elf, uint64 relocAddr, std::string databasePath);
+    cell_loader(elf_reader<elf64> *elf, uint64 relocAddr, std::string databasePath);
   
-  void apply();
+    void apply();
   
-  bool isLoadingExec() const
-    { return m_elf->type() == ET_EXEC; }
+    bool isLoadingExec() const
+    {
+        return m_elf->type() == ET_EXEC;
+    }
 
-  bool isLoadingPrx() const
-    { return m_elf->type() == ET_SCE_PPURELEXEC; }
+    bool isLoadingPrx() const
+    {
+        return m_elf->type() == ET_SCE_PPURELEXEC;
+    }
   
 private:
-  void applySegments();
-  void applySegment(uint32 sel,
-      uint64 offset,
-      uint64 addr,
-      uint64 size,
-      const char* name,
-      const char* sclass,
-      uchar perm,
-      uchar align,
-      bool load = true,
-      uint64 filesize = 0);
+    void applySegments();
+    void applySegment(uint32 sel,
+        uint64 offset,
+        uint64 addr,
+        uint64 size,
+        const char* name,
+        const char* sclass,
+        uchar perm,
+        uchar align,
+        bool load = true,
+        uint64 filesize = 0);
 
-  void applySectionHeaders();
-  void applyProgramHeaders();
+    void applySectionHeaders();
+    void applyProgramHeaders();
   
-  void applyRelocations();
-  void applySectionRelocations();
-  void applySegmentRelocations();
-  void applyRelocation(uint32 type, uint32 addr, uint32 saddr);
-  void applyOpdEntries();
+    void applyRelocations();
+    void applySectionRelocations();
+    void applySegmentRelocations();
+    void applyRelocation(uint32 type, uint32 addr, uint32 saddr);
+    void applyOpdEntries();
   
-  void declareStructures();
+    void declareStructures();
 
-  void applyModuleInfo();
+    void applyModuleInfo();
 
 
-  void loadExports(uint32 entTop, uint32 entEnd);
-  void loadImports(uint32 stubTop, uint32 stubEnd);
+    void loadExports(uint32 entTop, uint32 entEnd);
+    void loadImports(uint32 stubTop, uint32 stubEnd);
   
-  const char *getNameFromDatabase(const char *group, unsigned int nid);
+    const char *getNameFromDatabase(const char *group, unsigned int nid);
 
-  void applyProcessInfo();
+    void applyProcessInfo();
   
-  void swapSymbols();
-  void applySymbols();
+    void swapSymbols();
+    void applySymbols();
 };
