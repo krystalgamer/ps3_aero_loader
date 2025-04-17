@@ -11,6 +11,7 @@ class cell_loader
     tinyxml2::XMLDocument m_database;   ///< Handle for this loader's NID xml database.
     uint64 m_relocAddr; // Base relocaton address for PRX's.
     uint64 m_gpValue;   // TOC value
+    bool m_64bitPtr;
     bool m_hasSegSym;   // has seg sym, but the real meaning
                         // is if its a 0.85 PRX since its the only
                         // way I know how to check
@@ -36,12 +37,12 @@ private:
         uint64 offset,
         uint64 addr,
         uint64 size,
+        uint64 filesize,
         const char* name,
         const char* sclass,
         uchar perm,
         uchar align,
-        bool load = true,
-        uint64 filesize = 0);
+        bool load = true);
 
     void applySectionHeaders();
     void applyProgramHeaders();
@@ -50,7 +51,9 @@ private:
     void applySectionRelocations();
     void applySegmentRelocations();
     void applyRelocation(uint32 type, uint32 addr, uint32 saddr);
+    void applyOpd64Entries();
     void applyOpdEntries();
+    void findSectionOpd64();
   
     void declareStructures();
 

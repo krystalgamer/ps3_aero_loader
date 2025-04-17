@@ -40,6 +40,8 @@ cell_loader::cell_loader(elf_reader<elf64> *elf,
     tinyxml2::XMLError parseError = m_database.LoadFile(databasePath);
     if (parseError != tinyxml2::XML_SUCCESS)
         loader_failure("Failed to load database file (%s).\n", databaseFile.c_str());
+
+    m_64bitPtr = false;
 }
 
 void cell_loader::apply()
@@ -104,8 +106,11 @@ void cell_loader::apply()
 
         add_entry(0, m_elf->entry(), "_start", true);
     }
-  
-    msg("gpValue = %08x\n", m_gpValue);
+
+    // we need to check if opd64 is present and get 64bits TOC value
+    findSectionOpd64();
+
+    msg("gpValue = 0x%llx\n", m_gpValue);
   
     // set TOC in IDA
     //ph.notify(processor_t::idp_notify(ph.loader+1), m_gpValue);
@@ -174,7 +179,8 @@ void cell_loader::applySectionHeaders()
             applySegment( index, 
                         section.sh_offset, 
                         section.sh_addr, 
-                        section.sh_size, 
+                        section.sh_size,
+                        section.sh_size,
                         name, 
                         sclass, 
                         perm, 
@@ -222,13 +228,13 @@ void cell_loader::applyProgramHeaders()
             applySegment( index, 
                         segment.p_offset, 
                         segment.p_vaddr, 
-                        segment.p_memsz, 
+                        segment.p_memsz,
+                        segment.p_filesz,
                         NULL, 
                         sclass, 
                         perm, 
                         m_elf->getAlignment(segment.p_align),
-                        true,
-                        segment.p_filesz);
+                        true);
 
             ++index;
         }
@@ -238,13 +244,13 @@ void cell_loader::applyProgramHeaders()
 void cell_loader::applySegment(uint32 sel, 
                                uint64 offset, 
                                uint64 addr, 
-                               uint64 size, 
+                               uint64 size,
+                               uint64 filesize,
                                const char *name, 
                                const char *sclass, 
                                uchar perm, 
                                uchar align, 
-                               bool load,
-                               uint64 filesize)
+                               bool load)
 {
     addr += m_relocAddr;
 
@@ -268,7 +274,7 @@ void cell_loader::applySegment(uint32 sel,
     add_segm_ex(&seg, name, sclass, NULL);
 
     if ( load == true )
-        file2base(m_elf->getReader(), offset, addr, ((filesize)? addr + filesize: addr + size), true);
+        file2base(m_elf->getReader(), offset, addr, addr + filesize, true);
 }
 
 void cell_loader::applyRelocations()
@@ -886,15 +892,136 @@ void cell_loader::swapSymbols()
     }
 }
 
-void cell_loader::applyOpdEntries()
+void cell_loader::findSectionOpd64()
 {
-    if (m_elf->entry() > m_gpValue)
+    int total_sections = m_elf->getNumSections();
+    if (total_sections == 0)
     {
-        msg("Warning! Incorrect TOC\n");
+        msg("Section headers = 0, opd64 not found.\n");
         return;
     }
 
-    msg("Applying OPD entries\n");
+    auto& sections = m_elf->getSections();
+    int sec = 0;
+    for (const auto& section : sections)
+    {
+        if (section.sh_size < 0x48ULL) //3 entries is minimum
+        {
+            //msg("Section 0x%X size is zero\n", sec);
+            sec++;
+            continue;
+        }
+        if ((section.sh_size % 0x18) != 0)
+        {
+            //msg("Section 0x%X is not aligned\n", sec);
+            sec++;
+            continue;
+        }
+
+        if (section.sh_type != SHT_PROGBITS)
+        {
+            //msg("Section 0x%X is PROGBITS\n", sec);
+            sec++;
+            continue;
+        }
+
+        //msg("Testing section 0x%X\n", sec);
+        bool zeroed_section = true;
+        bool is_valid = false;
+        auto current_addr = section.sh_addr;
+        auto end_addr = section.sh_size + section.sh_addr;
+        uint64 func = 0; uint64 current_r2 = 0; uint64 previous_r2 = 0; uint64 r2; uint64 pad = 0;
+
+        for (current_addr; current_addr < end_addr; current_addr += 0x18)
+        {
+            func = get_qword(current_addr);
+            current_r2 = get_qword(current_addr +8);
+            pad  = get_qword(current_addr +0x10);
+
+            if (func != 0)
+                zeroed_section = false;
+
+            if (pad != 0)
+            {
+                //msg("Invalid pad 0x%llX\n", pad);
+                //msg("At addr 0x%llX\n", (current_addr + 0x10));
+                is_valid = false;
+                break;
+            }
+            if (current_r2 != previous_r2)
+            {
+                if ((current_r2 != 0) && (previous_r2 != 0))
+                {
+                    //msg("Invalid r2 0x%llX\n", current_r2);
+                    //msg("At addr 0x%llX\n", (current_addr + 8));
+                    is_valid = false;
+                    break;
+                }
+            }
+            is_valid = true;
+            previous_r2 = current_r2;
+            if (current_r2 != 0)
+                r2 = current_r2;
+        }
+
+        if ((is_valid == true) && (zeroed_section == false))
+        {
+            //msg("Section 0x%X is OPD 64\n", sec);
+            //msg("R2 is 0x%llX\n", r2);
+            m_64bitPtr = true;
+            m_gpValue = r2;
+            return;
+        }
+
+        sec++;
+    }
+}
+
+void cell_loader::applyOpd64Entries()
+{
+    msg("Applying OPD 64 entries...\n");
+    auto ea = m_gpValue;
+
+    // Find end of opd
+    while (((get_qword(ea - sizeof(uint64)*2)) != m_gpValue) || ((get_qword(ea - sizeof(uint64) * 5)) != m_gpValue))
+    {
+        if (ea < 0)
+        {
+            msg("OPD 64 Not found\n");
+            return;
+        }
+        ea = ea - sizeof(uint64);
+    }
+
+    // Apply opd 64 entries
+    while (true)
+    {
+        ea = ea - 0x18;
+        if ((get_qword(ea) != BADADDR) && ((get_qword(ea + sizeof(uint64))) == m_gpValue))
+        {
+            tid_t tid = get_named_type_tid("opd64_t");
+            add_func(get_qword(ea));
+            create_struct(ea, 0x18, tid, true);  
+            continue;
+        }
+
+        if ((get_qword(ea + sizeof(uint64)) != 0) && ((get_qword(ea + sizeof(uint64))) != m_gpValue))
+        {
+            break;
+        }
+    }
+}
+
+void cell_loader::applyOpdEntries()
+{
+    if (m_64bitPtr == true)
+    {
+        //msg("Pointer is 64 bits long!\n");
+        applyOpd64Entries();
+        return;
+    }
+
+    msg("Applying OPD entries...\n");
     auto ea = m_gpValue;
 
     // Find end of opd
@@ -915,8 +1042,8 @@ void cell_loader::applyOpdEntries()
         if ((get_dword(ea) != BADADDR) && ((get_dword(ea + sizeof(uint32))) == m_gpValue))
         {
             tid_t tid = get_named_type_tid("opd32_t");
-            create_struct(ea, 0x08, tid);
             add_func(get_dword(ea));
+            create_struct(ea, 0x08, tid, true); 
             continue;
         }
 
@@ -1291,5 +1418,18 @@ void cell_loader::declareStructures()
     else
     {
         warning("Failed to create opd32_t");
+    }
+
+    tinfo_t ppu64_opd_entry;
+    if (ppu64_opd_entry.create_udt(false))
+    {
+        ppu64_opd_entry.set_named_type(nullptr, "opd64_t");
+        add_param_to_struct(ppu64_opd_entry, "funcaddr", "unsigned int *__ptr64");
+        add_param_to_struct(ppu64_opd_entry, "r2", "unsigned long long");
+        add_param_to_struct(ppu64_opd_entry, "pad", "unsigned long long");
+    }
+    else
+    {
+        warning("Failed to create opd64_t");
     }
 }

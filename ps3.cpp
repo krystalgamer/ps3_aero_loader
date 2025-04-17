@@ -29,7 +29,6 @@ static int idaapi
         else
             return 0;
 
-
         *processor = "ppc";
 
         char buf[128];
@@ -50,7 +49,6 @@ static void idaapi
     compiler_info_t c;
     set_compiler(c, 4, "celloslv2");
    
-
     elf_reader<elf64> elf(li); elf.read();
     
     ea_t relocAddr = 0;
