@@ -897,7 +897,7 @@ void cell_loader::findSectionOpd64()
     int total_sections = m_elf->getNumSections();
     if (total_sections == 0)
     {
-        msg("Section headers = 0, opd64 not found.\n");
+        //msg("Section headers = 0, opd64 not found.\n");
         return;
     }
 
