@@ -1,5 +1,36 @@
 <?xml version="1.0"?>
 <IdaInfoDatabase>
+    <Group name="PEmuCoreLib">
+        <Entry id="0x10C26027" name="PEmuSALTrylockMutex"/>
+        <Entry id="0x1DF0279E" name="PEmuSALCreateTimer"/>
+        <Entry id="0x1DF9384D" name="PEmuSALChangeThreadPriority"/>
+        <Entry id="0x21B9082A" name="PEmuSALDestroySemaphore"/>
+        <Entry id="0x318F27BA" name="PEmuSALLockMutex"/>
+        <Entry id="0x3BC55EF4" name="PEmuSALDestroyMutex"/>
+        <Entry id="0x3F001146" name="PEmuSALMalloc"/>
+        <Entry id="0x428104A3" name="PEmuInit"/>
+        <Entry id="0x45CFDEF4" name="PEmuSALFree"/>
+        <Entry id="0x4FAA2A25" name="PEmuSALCreateSemaphore"/>
+        <Entry id="0x5A474881" name="PEmuSALStopTimer"/>
+        <Entry id="0x63BF4733" name="PEmuSALCreateMutex"/>
+        <Entry id="0x794A0B63" name="PEmuSALWaitSemaphore"/>
+        <Entry id="0x8E74B14E" name="PEmuSALUnlockMutex"/>
+        <Entry id="0x9CDCD445" name="PEmuSALDestroyTimer"/>
+        <Entry id="0xB0530247" name="PEmuSALJoinThread"/>
+        <Entry id="0xB5BBBBD3" name="PEmuSALYieldThread"/>
+        <Entry id="0xC1B38A5E" name="PEmuSALCreateThread"/>
+        <Entry id="0xC6E7DC36" name="PEmuSALMemalign"/>
+        <Entry id="0xDA1ED122" name="PEmuFileInfraAllocateInfo"/>
+        <Entry id="0xE66CD391" name="PEmuSALPostSemaphore"/>
+        <Entry id="0xEA1EAF00" name="PEmuSALExitThread"/>
+    </Group>
+    <Group name="PEmuThreadImpl">
+        <Entry id="0x06AB685C" name="PEmuThreadImplLock"/>
+        <Entry id="0x4AF3C9D9" name="PEmuThreadImplInit"/>
+        <Entry id="0x53178A74" name="PEmuThreadImplInitWaitQueue"/>
+        <Entry id="0x95019945" name="PEmuThreadImplUninitWaitQueue"/>
+        <Entry id="0xFFD985D0" name="PEmuThreadImplUnlock"/>
+    </Group>
     <Group name="allocator">
         <Entry id="0x2356ef16" name="_ZnajRKSt9nothrow_t"/>
         <Entry id="0x45e124a" name="_ZdaPv"/>
@@ -1198,6 +1229,19 @@
         <Entry id="0xfcfaf246" name="cellMicStop"/>
         <Entry id="0xfda12276" name="cellMicGetFormatAux"/>
         <Entry id="0xfdbbe469" name="cellMicGetDeviceIdentifier"/>
+    </Group>
+    <Group name="cellMinisSaveData">
+        <Entry id="0x0A516FFD" name="cellMinisSaveDataAutoSave"/>
+        <Entry id="0x22F2A553" name="cellMinisSaveDataListAutoLoad"/>
+        <Entry id="0x47BB3BC0" name="cellMinisSaveDataSingleDelete"/>
+        <Entry id="0x66515C18" name="cellMinisSaveDataFixedLoad"/>
+        <Entry id="0x6EB168B3" name="cellMinisSaveDataDelete"/>
+        <Entry id="0xA342A73F" name="cellMinisSaveDataListSave"/>
+        <Entry id="0xBA161D45" name="cellMinisSaveDataListLoad"/>
+        <Entry id="0xE0AFD1E6" name="cellMinisSaveDataAutoDelete"/>
+        <Entry id="0xE63EB964" name="cellMinisSaveDataListDelete"/>
+        <Entry id="0xF3F974B8" name="cellMinisSaveDataFixedSave"/>
+        <Entry id="0xFC3045D9" name="cellMinisSaveDataAutoLoad"/>
     </Group>
     <Group name="cellMusicDecodeUtility">
         <Entry id="0x066bb1cf" name="cellMusicDecodeSetDecodeCommand"/>
@@ -3380,6 +3424,108 @@
         <Entry id="0x9e9d7d42" name="cellPngDecExtSetParameter"/>
         <Entry id="0xd2bc5bfd" name="cellPngDecOpen"/>
         <Entry id="0xe97c9bd4" name="cellPngDecSetParameter"/>
+    </Group>
+    <Group name="sceEmulatorApi">
+        <Entry id="0x3680575D" name="pemu_abort"/>
+        <Entry id="0xE7E8A312" name="pemu_bind"/>
+        <Entry id="0x95BBBE9E" name="pemu_accept"/>
+        <Entry id="0x2A2987E9" name="pemu_close"/>
+        <Entry id="0x2F140400" name="pemu_connect"/>
+        <Entry id="0xF99BD45A" name="pemu_getpeername"/>
+        <Entry id="0x4A209AAD" name="pemu_getsockname"/>
+        <Entry id="0x28188E4C" name="pemu_getsockopt"/>
+        <Entry id="0xBB041DC2" name="pemu_inet_aton"/>
+        <Entry id="0x298FC45A" name="pemu_inet_ntoa"/>
+        <Entry id="0x459555E6" name="pemu_inet_ntop"/>
+        <Entry id="0xE13C3213" name="pemu_inet_pton"/>
+        <Entry id="0x4BB955EF" name="pemu_listen"/>
+        <Entry id="0x55D805DF" name="pemu_poll"/>
+        <Entry id="0x2A3DDD04" name="pemu_recv"/>
+        <Entry id="0x281DCF04" name="pemu_recvfrom"/>
+        <Entry id="0xF3D50914" name="pemu_recvmsg"/>
+        <Entry id="0xD4D9BDC3" name="pemu_select"/>
+        <Entry id="0x8A751CEF" name="pemu_send"/>
+        <Entry id="0xD2B8D15C" name="pemu_sendmsg"/>
+        <Entry id="0x137AE123" name="pemu_sendto"/>
+        <Entry id="0x17CAA895" name="pemu_setsockopt"/>
+        <Entry id="0xD51F8754" name="pemu_shutdown"/>
+        <Entry id="0x2549760D" name="pemu_socket"/>
+        <Entry id="0x09931B84" name="pemuTryAllocateFpl"/>
+        <Entry id="0x0C5E0460" name="pemuCreateUmdCache"/>
+        <Entry id="0x0DD431BC" name="pemuIoDclose"/>
+        <Entry id="0x10C7CE77" name="pemuNpGetNpId"/>
+        <Entry id="0x12089C67" name="pemuNpDrmProcessExitSpawn_plt"/>
+        <Entry id="0x12E12935" name="pemuTryAllocateVpl"/>
+        <Entry id="0x19E4355B" name="pemuDmacSetState"/>
+        <Entry id="0x1C99F1EE" name="pemuDeleteVpl"/>
+        <Entry id="0x255FD3B7" name="pemuLookUpPemuFd_pemu"/>
+        <Entry id="0x275C2AAC" name="pemuIoDread"/>
+        <Entry id="0x29ECF29F" name="pemuOpenPSIDGetOpenPSID"/>
+        <Entry id="0x370C8F56" name="pemuNpDrmOpen_plt"/>
+        <Entry id="0x42B9F0D4" name="pemuPadGetData"/>
+        <Entry id="0x47E2315B" name="pemuCancelAlarm"/>
+        <Entry id="0x4E8D042C" name="pemuIoWrite"/>
+        <Entry id="0x53978EBC" name="pemu9660DecryptBlock"/>
+        <Entry id="0x5FB63D7E" name="pemuNetApctlTerm"/>
+        <Entry id="0x5FC7EEF2" name="pemuReferVplStatus"/>
+        <Entry id="0x605390D9" name="pemuNetApctlGetBSSDescEntry2"/>
+        <Entry id="0x67B3E89C" name="pemuNpDrmIsAvailable_plt"/>
+        <Entry id="0x6FF101BF" name="pemuIdStorageLookup"/>
+        <Entry id="0x7BDE1C3A" name="pemuCtrlTimerAdjust"/>
+        <Entry id="0x7CFF1427" name="pemuIoOpen"/>
+        <Entry id="0x7F54A5A7" name="pemuNetApctlGetInfo"/>
+        <Entry id="0x81E4D566" name="pemuIoRead"/>
+        <Entry id="0x88079540" name="pemuCreateFpl"/>
+        <Entry id="0x8C35A360" name="pemuNpDrmProcessExitSpawn2_plt"/>
+        <Entry id="0x9AC63FCC" name="pemuNpDrmIsAvailable2_plt"/>
+        <Entry id="0x9B570D9F" name="pemuFsFstat_plt"/>
+        <Entry id="0xA135577B" name="pemuIoBlockRead"/>
+        <Entry id="0xA1DCC859" name="pemuAdhocRxData"/>
+        <Entry id="0xA1FE29BD" name="pemuNpDrmVerifyUpgradeLicense2_plt"/>
+        <Entry id="0xA3BEA3E7" name="pemuCtrlTimerThreadStop"/>
+        <Entry id="0xA6139569" name="pemuNetApctlAddHandler"/>
+        <Entry id="0xA7101F93" name="pemuIoDopen"/>
+        <Entry id="0xB06736C6" name="pemuNetApctlInit"/>
+        <Entry id="0xB0BFE599" name="pemuNetApctlConnect"/>
+        <Entry id="0xBCC3D9D1" name="pemuRegisterFd_pemu"/>
+        <Entry id="0xC60534DB" name="pemuIoLseek"/>
+        <Entry id="0xCB10B0D3" name="pemuAdhocTxData"/>
+        <Entry id="0xD07015C0" name="pemuFreeVpl"/>
+        <Entry id="0xD104085A" name="pemuPadGetInfo2"/>
+        <Entry id="0xD56CF141" name="pemuSetAlarm"/>
+        <Entry id="0xD8E12D93" name="pemuFreeUmdCache"/>
+        <Entry id="0xDA3DECE8" name="pemuFreeFpl"/>
+        <Entry id="0xE119E5BF" name="pemuNpDrmGetTimelimit_plt"/>
+        <Entry id="0xE2B41E8A" name="pemuLzrcDecode"/>
+        <Entry id="0xE36CDCB6" name="pemuAllocateFpl"/>
+        <Entry id="0xE632FDCB" name="pemuDeleteUmdCache"/>
+        <Entry id="0xE8074E9E" name="pemuDeleteFpl"/>
+        <Entry id="0xEC5E1DDE" name="pemuCtrlTimerThreadStart"/>
+        <Entry id="0xF14A7E43" name="pemuNpDrmVerifyUpgradeLicense_plt"/>
+        <Entry id="0xF48ED400" name="pemuNpDrmExecuteGamePurchase_plt"/>
+        <Entry id="0xF9C1F2B5" name="pemuAllocateVpl"/>
+        <Entry id="0xFA87437B" name="pemuCreateVpl"/>
+        <Entry id="0xFE715B53" name="pemuReferFplStatus"/>
+    </Group>
+    <Group name="sceEmulatorDrm">
+        <Entry id="0xC158FA33" name="sceDrmBBCipherFinal"/>
+        <Entry id="0xAF4B428D" name="sceDrmBBCipherInit"/>
+        <Entry id="0x1BEFE215" name="sceDrmBBCipherUpdate"/>
+        <Entry id="0x76FC3DCF" name="sceDrmBBMacFinal"/>
+        <Entry id="0xAAB982EA" name="sceDrmBBMacFinal2"/>
+        <Entry id="0xA06F0C04" name="sceDrmBBMacInit"/>
+        <Entry id="0x54A50034" name="sceDrmBBMacUpdate"/>
+        <Entry id="0xEF7A58EA" name="sceSdCleanList"/>
+        <Entry id="0x548048F6" name="sceSdCreateList"/>
+        <Entry id="0x142F63AA" name="sceSdGetLastIndex"/>
+        <Entry id="0xFD86FFC1" name="sceSdRemoveValue"/>
+        <Entry id="0xA7F04A24" name="sceSdSetIndex"/>
+        <Entry id="0x93678562" name="sceSdSetMember"/>
+    </Group>
+    <Group name="sceNetAdhocVshlib">
+        <Entry id="0x01618190" name="sceNetAoiRecvAdhocPacket"/>
+        <Entry id="0x4F2F83F2" name="sceNetAoiSendAdhocPacket"/>
+        <Entry id="0xF9601182" name="sceNetConfig80211GetBssDesc"/>
     </Group>
     <Group name="sceNp">
         <Entry id="0x000e53cc" name="sceNpManagerSubSignout"/>
