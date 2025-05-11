@@ -34,117 +34,127 @@
 
 /* MODULE INFO */
 
-typedef struct _scemoduleinfo_common {
-  unsigned short modattribute;
-  unsigned char modversion[2];
-  char modname[SYS_MODULE_NAME_LEN];
-  char terminal;
+typedef struct _scemoduleinfo_common
+{
+    unsigned short modattribute;
+    unsigned char modversion[2];
+    char modname[SYS_MODULE_NAME_LEN];
+    char terminal;
 } sceModuleInfo_common;
 
-typedef struct _scemoduleinfo_ppu32 {
-  sceModuleInfo_common c;
-  Elf32_Addr gp_value;
-  Elf32_Addr ent_top;
-  Elf32_Addr ent_end;
-  Elf32_Addr stub_top;
-  Elf32_Addr stub_end;
+typedef struct _scemoduleinfo_ppu32
+{
+    sceModuleInfo_common c;
+    Elf32_Addr gp_value;
+    Elf32_Addr ent_top;
+    Elf32_Addr ent_end;
+    Elf32_Addr stub_top;
+    Elf32_Addr stub_end;
 } sceModuleInfo_ppu32;
 
-typedef struct _scemoduleinfo_ppu64 {
-  sceModuleInfo_common c;
-  Elf64_Addr gp_value;
-  Elf64_Addr ent_top; 
-  Elf64_Addr ent_end; 
-  Elf64_Addr stub_top;
-  Elf64_Addr stub_end;
+typedef struct _scemoduleinfo_ppu64
+{
+    sceModuleInfo_common c;
+    Elf64_Addr gp_value;
+    Elf64_Addr ent_top; 
+    Elf64_Addr ent_end; 
+    Elf64_Addr stub_top;
+    Elf64_Addr stub_end;
 } sceModuleInfo_ppu64;
 
 
 /* IMPORTS */
 
-typedef struct _scelibstub_common {
-  unsigned char structsize;
-  unsigned char reserved1[1];
-  unsigned short version;
-  unsigned short attribute;
-  unsigned short nfunc;
-  unsigned short nvar;
-  unsigned short ntlsvar;
-  unsigned char reserved2[4];
+typedef struct _scelibstub_common
+{
+    unsigned char structsize;
+    unsigned char reserved1[1];
+    unsigned short version;
+    unsigned short attribute;
+    unsigned short nfunc;
+    unsigned short nvar;
+    unsigned short ntlsvar;
+    unsigned char reserved2[4];
 } sceKernelLibraryStubTable_common;
 
 typedef sceKernelLibraryStubTable_common
         sceKernelLibraryStubTable_ppu_common;
 
-typedef struct _scelibstub_ppu32 {
-  sceKernelLibraryStubTable_ppu_common c;
-  Elf32_Addr libname;
-  Elf32_Addr func_nidtable;
-  Elf32_Addr func_table;
-  Elf32_Addr var_nidtable;
-  Elf32_Addr var_table;
-  Elf32_Addr tls_nidtable;
-  Elf32_Addr tls_table;
+typedef struct _scelibstub_ppu32
+{
+    sceKernelLibraryStubTable_ppu_common c;
+    Elf32_Addr libname;
+    Elf32_Addr func_nidtable;
+    Elf32_Addr func_table;
+    Elf32_Addr var_nidtable;
+    Elf32_Addr var_table;
+    Elf32_Addr tls_nidtable;
+    Elf32_Addr tls_table;
 } sceKernelLibraryStubTable_ppu32;
 
-typedef struct _scelibstub_ppu64 {
-  sceKernelLibraryStubTable_ppu_common c;
-  Elf64_Addr libname;
-  Elf64_Addr func_nidtable;
-  Elf64_Addr func_table;
-  Elf64_Addr var_nidtable;
-  Elf64_Addr var_table;
-  Elf64_Addr tls_nidtable;
-  Elf64_Addr tls_table;
+typedef struct _scelibstub_ppu64
+{
+    sceKernelLibraryStubTable_ppu_common c;
+    Elf64_Addr libname;
+    Elf64_Addr func_nidtable;
+    Elf64_Addr func_table;
+    Elf64_Addr var_nidtable;
+    Elf64_Addr var_table;
+    Elf64_Addr tls_nidtable;
+    Elf64_Addr tls_table;
 } sceKernelLibraryStubTable_ppu64;
 
 /* EXPORTS */
 
-typedef struct _scelibent_common {
-  unsigned char structsize;
-  unsigned char auxattribute;
-  short unsigned int version;
-  short unsigned int attribute;
-  short unsigned int nfunc;
-  short unsigned int nvar;
-  short unsigned int ntlsvar;
-  unsigned char hashinfo;
-  unsigned char hashinfotls;
-  unsigned char reserved2[1];
-  unsigned char nidaltsets;
+typedef struct _scelibent_common
+{
+    unsigned char structsize;
+    unsigned char auxattribute;
+    short unsigned int version;
+    short unsigned int attribute;
+    short unsigned int nfunc;
+    short unsigned int nvar;
+    short unsigned int ntlsvar;
+    unsigned char hashinfo;
+    unsigned char hashinfotls;
+    unsigned char reserved2[1];
+    unsigned char nidaltsets;
 } sceKernelLibraryEntryTable_common;
 
 typedef sceKernelLibraryEntryTable_common
         sceKernelLibraryEntryTable_ppu_common;
 
-typedef struct _scelibent_ppu32 {
-  sceKernelLibraryEntryTable_ppu_common c;
-  Elf32_Addr libname;
-  Elf32_Addr nidtable;
-  Elf32_Addr addtable;
+typedef struct _scelibent_ppu32
+{
+    sceKernelLibraryEntryTable_ppu_common c;
+    Elf32_Addr libname;
+    Elf32_Addr nidtable;
+    Elf32_Addr addtable;
 } sceKernelLibraryEntryTable_ppu32;
 
-typedef struct _scelibent_ppu64 {
-  sceKernelLibraryEntryTable_ppu_common c;
-  Elf64_Addr libname;
-  Elf64_Addr nidtable;
-  Elf64_Addr addtable;
+typedef struct _scelibent_ppu64
+{
+    sceKernelLibraryEntryTable_ppu_common c;
+    Elf64_Addr libname;
+    Elf64_Addr nidtable;
+    Elf64_Addr addtable;
 } sceKernelLibraryEntryTable_ppu64;
 
 /* PROCESS PARAM */
 
 #define SYS_PROCESS_PARAM_MAGIC			0x13bcc5f6
 
-typedef struct {
-  unsigned int size;
-  unsigned int magic;
-  unsigned int version;
-  unsigned int sdk_version;
-  int primary_prio;
-  unsigned int primary_stacksize;
-  unsigned int malloc_pagesize;
-  unsigned int ppc_seg;
-  unsigned int crash_dump_param_addr;
+typedef struct
+{
+    unsigned int size;
+    unsigned int magic;
+    unsigned int version;
+    unsigned int sdk_version;
+    int primary_prio;
+    unsigned int primary_stacksize;
+    unsigned int malloc_pagesize;
+    unsigned int ppc_seg;
+    unsigned int crash_dump_param_addr;
 } sys_process_param_t;
 
 /* PROCESS PRX */
@@ -152,16 +162,17 @@ typedef struct {
 #define SYS_PROCESS_PRX_MAGIC			0x1b434cec
 #define SYS_PROCESS_PRX_VERSION         4           /* latest */
 
-typedef struct sys_process_prx_info_t {
-  unsigned int size;
-  unsigned int magic;
-  unsigned int version;
-  unsigned int sdk_version;
-  unsigned int libent_start;
-  unsigned int libent_end;
-  unsigned int libstub_start;
-  unsigned int libstub_end;
-  unsigned char major_version;
-  unsigned char minor_version;
-  unsigned char reserved[6];
+typedef struct sys_process_prx_info_t
+{
+    unsigned int size;
+    unsigned int magic;
+    unsigned int version;
+    unsigned int sdk_version;
+    unsigned int libent_start;
+    unsigned int libent_end;
+    unsigned int libstub_start;
+    unsigned int libstub_end;
+    unsigned char major_version;
+    unsigned char minor_version;
+    unsigned char reserved[6];
 } sys_process_prx_info_t;
